@@ -28,7 +28,7 @@ type (
 
 const (
 	baseAuthUrl       = "https://id.twitch.tv/oauth2"
-	relativeTokenPath = "/.twitchnerds/.token"
+	relativeTokenPath = "/.twitchtui/.token"
 	baseAPIUrl        = "https://api.twitch.tv/helix"
 )
 

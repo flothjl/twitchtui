@@ -1,3 +1,5 @@
-# TwitchNerds
+# twitchtui
 
-## Simple application to show who of my favorite streamers are online
+## 🚧 Work in progress 🚧
+
+Simple lightweight TUI to interact with twitch

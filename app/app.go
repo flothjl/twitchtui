@@ -5,9 +5,13 @@ import (
 	"os/exec"
 	"runtime"
 
+	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/flothjl/twitchnerds/api"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/flothjl/twitchtui/api"
 )
+
+var docStyle = lipgloss.NewStyle().Margin(1, 2)
 
 func openTwitchStream(username string) error {
 	var err error
@@ -28,10 +32,29 @@ func openTwitchStream(username string) error {
 	return err
 }
 
+type item struct {
+	title, desc, userLogin string
+}
+
+func (i item) Title() string       { return i.title }
+func (i item) Description() string { return i.desc }
+func (i item) FilterValue() string { return i.title }
+
 type model struct {
+	list      list.Model
 	choices   []api.Stream
 	cursor    int
 	apiClient api.Api
+}
+
+func buildListFromTwitchStreamData(data []api.Stream) []list.Item {
+	var s []list.Item
+	for _, stream := range data {
+		title := fmt.Sprintf("%s | %s", stream.UserDisplayName, stream.GameName)
+		subtitle := fmt.Sprintf("%s | %d viewers", stream.Title, stream.ViewerCount)
+		s = append(s, item{title, subtitle, stream.UserLogin})
+	}
+	return s
 }
 
 func InitialModel(twitchApi *api.Api) (*model, error) {
@@ -39,7 +62,12 @@ func InitialModel(twitchApi *api.Api) (*model, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	listItems := buildListFromTwitchStreamData(choices.Data)
+	l := list.New(listItems, list.NewDefaultDelegate(), 0, 0)
+	l.Title = "Who's online?"
 	return &model{
+		list:      l,
 		choices:   choices.Data,
 		apiClient: *twitchApi,
 	}, nil
@@ -51,66 +79,37 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	// Is it a key press?
+	case tea.WindowSizeMsg:
+		h, v := docStyle.GetFrameSize()
+		m.list.SetSize(msg.Width-h, msg.Height-v)
+
+		// Is it a key press?
 	case tea.KeyMsg:
 
 		// Cool, what was the actual key pressed?
 		switch msg.String() {
 
 		// These keys should exit the program.
-		case "ctrl+c", "q":
+		case "ctrl+c":
 			return m, tea.Quit
 
-		// The "up" and "k" keys move the cursor up
-		case "up", "k":
-			if m.cursor > 0 {
-				m.cursor--
-			}
-
-		// The "down" and "j" keys move the cursor down
-		case "down", "j":
-			if m.cursor < len(m.choices)-1 {
-				m.cursor++
-			}
-
-		//"r" key reloads the list of streams
-		case "r":
-			reloadedList, err := m.apiClient.GetFollowedStreams()
-			if err == nil {
-				m.choices = reloadedList.Data
-			}
 		// The "enter" key and the spacebar (a literal space) toggle
 		// the selected state for the item that the cursor is pointing at.
 		case "enter", " ":
-			openTwitchStream(m.choices[m.cursor].UserLogin)
+			i, ok := m.list.SelectedItem().(item)
+			if ok {
+				openTwitchStream(i.userLogin)
+			}
+			return m, nil
 		}
 	}
-
+	var cmd tea.Cmd
+	m.list, cmd = m.list.Update(msg)
 	// Return the updated model to the Bubble Tea runtime for processing.
 	// Note that we're not returning a command.
-	return m, nil
+	return m, cmd
 }
 
 func (m model) View() string {
-	// The header
-	s := "Who's live?\n\n"
-
-	// Iterate over our choices
-	for i, choice := range m.choices {
-
-		// Is the cursor pointing at this choice?
-		cursor := " " // no cursor
-		if m.cursor == i {
-			cursor = ">" // cursor!
-		}
-
-		// Render the row
-		s += fmt.Sprintf("%s %s, %s\n", cursor, choice.UserDisplayName, choice.GameName)
-	}
-	s += "\nPress r to reload the list.\n"
-	// The footer
-	s += "\nPress q to quit.\n"
-
-	// Send the UI for rendering
-	return s
+	return docStyle.Render(m.list.View())
 }

@@ -7,11 +7,11 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
+
+	"github.com/flothjl/twitchtui/internal/utils"
 )
 
 type TokenResponse struct {
@@ -28,22 +28,6 @@ type AccessToken struct {
 	ExpiresIn int      `json:"expires_in"`
 	Scopes    []string `json:"scopes"`
 	Token     string   `json:"token,omitempty"`
-}
-
-func openBrowser(url string) error {
-	var err error
-
-	switch runtime.GOOS {
-	case "linux":
-		err = exec.Command("xdg-open", url).Start()
-	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		err = exec.Command("open", url).Start()
-	default:
-		err = fmt.Errorf("unsupported platform")
-	}
-	return err
 }
 
 func callbackHandler(code chan<- string) http.HandlerFunc {
@@ -175,7 +159,7 @@ func (api *Api) authorizeUser() error {
 	server := &http.Server{
 		Addr: ":7394",
 	}
-	openBrowser(authorizationUrl)
+	utils.OpenBrowser(authorizationUrl)
 
 	codeChan := make(chan string)
 	go func() {

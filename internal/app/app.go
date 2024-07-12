@@ -2,13 +2,12 @@ package app
 
 import (
 	"fmt"
-	"os/exec"
-	"runtime"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/flothjl/twitchtui/internal/api"
+	"github.com/flothjl/twitchtui/internal/utils"
 )
 
 var docStyle = lipgloss.NewStyle().Margin(2, 2)
@@ -19,16 +18,7 @@ func openTwitchStream(username string) error {
 	baseUrl := "https://twitch.tv/"
 	url := baseUrl + username
 
-	switch runtime.GOOS {
-	case "linux":
-		err = exec.Command("xdg-open", url).Start()
-	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		err = exec.Command("open", url).Start()
-	default:
-		err = fmt.Errorf("unsupported platform")
-	}
+	err = utils.OpenBrowser(url)
 	return err
 }
 

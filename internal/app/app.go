@@ -8,10 +8,10 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/flothjl/twitchtui/api"
+	"github.com/flothjl/twitchtui/internal/api"
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
+var docStyle = lipgloss.NewStyle().Margin(2, 2)
 
 func openTwitchStream(username string) error {
 	var err error

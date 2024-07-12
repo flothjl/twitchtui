@@ -6,8 +6,8 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/flothjl/twitchtui/api"
-	"github.com/flothjl/twitchtui/app"
+	"github.com/flothjl/twitchtui/internal/api"
+	"github.com/flothjl/twitchtui/internal/app"
 )
 
 func main() {

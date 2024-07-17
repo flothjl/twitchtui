@@ -152,7 +152,7 @@ func (api *Api) authorizeUser() error {
 		"client_id":     {api.clientID},
 		"redirect_uri":  {"http://localhost:7394"},
 		"response_type": {"code"},
-		"scope":         {"user:read:follows"},
+		"scope":         {"user:read:follows chat:read"},
 	}
 
 	authorizationUrl := fmt.Sprintf("%s/%s?%s", api.authUrl, "authorize", params.Encode())

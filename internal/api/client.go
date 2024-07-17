@@ -8,6 +8,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	chat "github.com/gempir/go-twitch-irc/v4"
 )
 
 type Api struct {
@@ -18,6 +20,7 @@ type Api struct {
 	clientToken  *AccessToken
 	clientID     string
 	clientSecret string
+	chatClient   *chat.Client
 }
 
 type (
@@ -62,6 +65,11 @@ func New(clientID string, clientSecret string, options ...Option) (*Api, error) 
 	}
 
 	err = api.authorizeUser()
+	if err != nil {
+		return api, err
+	}
+
+	api.chatClient = chat.NewClient(api.clientToken.Login, fmt.Sprintf("oauth:%s", api.clientToken.Token))
 
 	return api, err
 }

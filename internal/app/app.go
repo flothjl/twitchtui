@@ -16,8 +16,6 @@ type (
 	state int
 )
 
-var renders int = 0
-
 const (
 	stateShowStreams state = iota
 	stateShowChat
@@ -101,7 +99,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case chatConnectedMsg:
 		m.chat.isConnected = true
-		renders += 1
 		return m, m.chat.Init()
 	case tea.WindowSizeMsg:
 		h, v := docStyle.GetFrameSize()
@@ -143,7 +140,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.streams.list, cmd = m.streams.list.Update(msg)
 	}
 	if m.state == stateShowChat {
-		renders += 1
 		m.chat, cmd = m.chat.Update(msg)
 	}
 
@@ -154,7 +150,7 @@ func (m model) View() string {
 	switch m.state {
 	case stateShowChat:
 		if m.chat.isConnected {
-			out := fmt.Sprintf("RENDERS: %v\n\n", renders)
+			out := ""
 			out += m.chat.view()
 			return docStyle.Render(out)
 		}

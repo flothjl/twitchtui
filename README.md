@@ -8,4 +8,9 @@ Simple lightweight TUI to interact with twitch
 
 ```bash
 ./twitchtui
+
 ```
+
+## Stream List
+
+![Screenshot of StremList](./StreamList.png)

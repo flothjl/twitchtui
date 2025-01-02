@@ -13,4 +13,4 @@ Simple lightweight TUI to interact with twitch
 
 ## Stream List
 
-![Screenshot of StremList](./StreamList.png)
+![Screenshot of StreamList](./StreamList.png)
